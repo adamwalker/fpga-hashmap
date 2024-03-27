@@ -49,7 +49,7 @@ mod ffi {
         fn set_del(vkvs: Pin<&mut Vkvs>, del: u8);
         fn set_mod_value(vkvs: Pin<&mut Vkvs>, mod_value: u32);
         fn get_valid(vkvs: Pin<&mut Vkvs>) -> u8;
-        fn get_res(vkvs: Pin<&mut Vkvs>) -> u32;
+        fn get_value(vkvs: Pin<&mut Vkvs>) -> u32;
     }
 
     unsafe extern "C++" {
@@ -110,7 +110,7 @@ fn deterministic_fill_readback(state: &mut usize, vkvs: &mut UniquePtr<ffi::Vkvs
         //Check outputs
         if *state >= MAX_INSERT + 2 {
             assert_eq!(1, ffi::get_valid(vkvs.pin_mut()));
-            assert_eq!((*state-2-MAX_INSERT) as u32, ffi::get_res(vkvs.pin_mut()));
+            assert_eq!((*state-2-MAX_INSERT) as u32, ffi::get_value(vkvs.pin_mut()));
         }
 
         *state+=1;
@@ -233,16 +233,16 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
 
         //Check outputs
         if state.lookups.len() == 2 {
-            let lu_res = state.lookups.pop_front().unwrap();
+            let lu_value = state.lookups.pop_front().unwrap();
 
             //Check the lookup valid signal is correct
-            assert_eq!(lu_res.is_some(), ffi::get_valid(vkvs.pin_mut()) != 0);
+            assert_eq!(lu_value.is_some(), ffi::get_valid(vkvs.pin_mut()) != 0);
             state.num_lookups_checked += 1;
 
-            if let Some((res, modval)) = lu_res {
+            if let Some((value, modval)) = lu_value {
 
                 //Check the lookup value is what we expect
-                assert_eq!(res,  ffi::get_res(vkvs.pin_mut()));
+                assert_eq!(value,  ffi::get_value(vkvs.pin_mut()));
                 state.num_lookups_matched += 1;
 
                 if let Some(val) = modval {
@@ -332,12 +332,12 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
 
                 ffi::set_key(vkvs.pin_mut(), key);
 
-                let res = match val {
+                let value = match val {
                     Some(val) => {Some((*val, None))},
                     None      => None,
                 };
 
-                state.lookups.push_back(res);
+                state.lookups.push_back(value);
 
                 state.num_recents += 1;
             }
@@ -349,12 +349,12 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
 
                 ffi::set_key(vkvs.pin_mut(), key);
 
-                let res = match state.map.get(&key) {
+                let value = match state.map.get(&key) {
                     Some(val) => Some((*val, None)),
                     None      => None
                 };
 
-                state.lookups.push_back(res);
+                state.lookups.push_back(value);
             }
 
         }

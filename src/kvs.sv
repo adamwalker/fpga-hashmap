@@ -57,7 +57,7 @@ module kvs #(
     input  logic [NUM_VAL_BITS-1:0] mod_value, //Set NUM_PIPES cycles after the lookup. New value for modify operation.
     //Lookup result
     output logic                    valid,     //Output NUM_PIPES cycles after the lookup
-    output logic [NUM_VAL_BITS-1:0] res        //Output NUM_PIPES cycles after the lookup
+    output logic [NUM_VAL_BITS-1:0] value      //Output NUM_PIPES cycles after the lookup
 );
 
 logic                    lu_valid[NUM_TABLES];
@@ -114,7 +114,7 @@ end
 //Lookup logic with corrections from the forwarding storage above
 always_comb begin
     valid = 1'b0;
-    res   = 'h0;
+    value = 'h0;
 
     for(int i=0; i<NUM_TABLES; i++)
         if (lu_valid[i]) begin
@@ -134,10 +134,10 @@ always_comb begin
              * inserted.
              */
             if (forward_modify[NUM_PIPES-1]) begin
-                res   = mod_value_q[NUM_PIPES-1];
+                value = mod_value_q[NUM_PIPES-1];
                 valid = !del_q[NUM_PIPES-1];
             end else begin
-                res   = lu_value[i];
+                value = lu_value[i];
                 valid = 1'b1;
             end
         end

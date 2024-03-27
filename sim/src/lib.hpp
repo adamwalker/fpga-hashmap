@@ -18,4 +18,4 @@ void set_modify(Vkvs& vkvs, uint8_t modify);
 void set_del(Vkvs& vkvs, uint8_t del);
 void set_mod_value(Vkvs& vkvs, uint32_t mod_value);
 uint8_t get_valid(Vkvs& vkvs);
-uint32_t get_res(Vkvs& vkvs);
+uint32_t get_value(Vkvs& vkvs);

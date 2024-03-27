@@ -30,7 +30,7 @@ module formal #(
 //Instantiate the design under test
 logic                    valid;
 logic                    busy;
-logic [NUM_VAL_BITS-1:0] res;
+logic [NUM_VAL_BITS-1:0] value;
 
 kvs #(
     .NUM_TABLES(NUM_TABLES),
@@ -60,7 +60,7 @@ kvs #(
     .del(del),
     .mod_value(mod_value),
     .valid(valid),
-    .res(res)
+    .value(value)
 );
 
 /*
@@ -163,7 +163,7 @@ always @(*)
     if (f_past_lookup[0]) begin
         assert (f_valid[0] == valid); //Key presence is correct
         if (f_valid[0])
-            assert (f_value[0] == res); //Key value is correct
+            assert (f_value[0] == value); //Key value is correct
     end
 
 /*

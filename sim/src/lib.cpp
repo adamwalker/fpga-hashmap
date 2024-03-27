@@ -65,6 +65,6 @@ uint8_t get_valid(Vkvs& vkvs) {
     return vkvs.valid;
 }
 
-uint32_t get_res(Vkvs& vkvs) {
-    return vkvs.res;
+uint32_t get_value(Vkvs& vkvs) {
+    return vkvs.value;
 }

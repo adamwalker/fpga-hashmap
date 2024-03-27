@@ -17,7 +17,7 @@ module top #(
     input  logic                del,
     input  logic [VAL_BITS-1:0] mod_value, //Set the cycle after the lookup
     output logic                valid,
-    output logic [VAL_BITS-1:0] res
+    output logic [VAL_BITS-1:0] value
 );
 
 kvs #(
