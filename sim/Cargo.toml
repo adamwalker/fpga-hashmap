@@ -1,0 +1,18 @@
+[package]
+name = "sim"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+cmake = "0.1.50"
+cxx-build = "1.0.115"
+walkdir = "2.4.0"
+
+[dependencies]
+cxx = "1.0.115"
+indexmap = "2.2.1"
+libz-sys = { version = "1.1.14", features = ["static"] }
+rand = "0.8.5"
+

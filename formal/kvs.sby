@@ -1,0 +1,31 @@
+[tasks]
+bmc
+cover
+
+[options]
+bmc:
+mode bmc
+depth 20
+--
+cover:
+mode cover
+--
+
+[engines]
+#smtbmc --nopresat bitwuzla 
+#smtbmc boolector
+#smtbmc boolector -- --noincr
+smtbmc --nopresat boolector -- --noincr
+
+[script]
+read -formal ram.sv
+read -formal column.sv
+read -formal kvs.sv
+read -formal formal.sv 
+prep -top formal
+
+[files]
+../src/ram.sv
+../src/column.sv
+../src/kvs.sv
+formal.sv
