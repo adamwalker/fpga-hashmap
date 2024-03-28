@@ -29,7 +29,7 @@
  * have taken effect by the cycle after the initial lookup took place. This is
  * to enable back to back read-modify-write operations on a single key.
  */
-module kvs #(
+module hashmap #(
     parameter int NUM_TABLES    = 4,  //Maximum of 4 tables supported
     parameter int NUM_ADDR_BITS = 12,
     parameter int NUM_KEY_BITS  = 32,

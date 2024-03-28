@@ -63,14 +63,14 @@ end
 
 assign value_p = value_shift[VAL_BITS-1];
 
-kvs #(
+hashmap #(
     .NUM_TABLES(4),
     .NUM_ADDR_BITS(12),
     .NUM_KEY_BITS(KEY_BITS),
     .NUM_VAL_BITS(VAL_BITS),
     .NUM_PIPES(2),
     .EN_INS_SEL(0)
-) kvs_inst (
+) hashmap_inst (
     .*
 );
 

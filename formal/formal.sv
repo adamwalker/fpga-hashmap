@@ -32,14 +32,14 @@ logic                    valid;
 logic                    busy;
 logic [NUM_VAL_BITS-1:0] value;
 
-kvs #(
+hashmap #(
     .NUM_TABLES(NUM_TABLES),
     .NUM_ADDR_BITS(NUM_ADDR_BITS),
     .NUM_KEY_BITS(NUM_KEY_BITS),
     .NUM_VAL_BITS(NUM_VAL_BITS),
     .NUM_PIPES(NUM_PIPES),
     .EN_INS_SEL(1)
-) kvs_inst (
+) hashmap_inst (
     .clk(clk),
 
     //f_key is only used for internal consistency assertions within the design.

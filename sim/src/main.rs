@@ -31,25 +31,25 @@ mod ffi {
     unsafe extern "C++" {
         include!("sim/src/lib.hpp");
 
-        type Vkvs;
+        type Vhashmap;
 
-        fn new_vkvs_unique(ctx: Pin<&mut VerilatedContext>) -> UniquePtr<Vkvs>;
-        fn eval(self: Pin<&mut Vkvs>);
+        fn new_vhashmap_unique(ctx: Pin<&mut VerilatedContext>) -> UniquePtr<Vhashmap>;
+        fn eval(self: Pin<&mut Vhashmap>);
         #[cxx_name = "trace"]
-        unsafe fn trace_raw(self: Pin<&mut Vkvs>, tfp: *mut VerilatedFstC, levels: i32, options: i32);
+        unsafe fn trace_raw(self: Pin<&mut Vhashmap>, tfp: *mut VerilatedFstC, levels: i32, options: i32);
 
-        fn set_clk(vkvs: Pin<&mut Vkvs>, clk: u8);
-        fn set_insert(vkvs: Pin<&mut Vkvs>, insert: u8);
-        fn get_busy(vkvs: Pin<&mut Vkvs>) -> u8;
-        fn set_ins_key(vkvs: Pin<&mut Vkvs>, ins_key: u32);
-        fn set_ins_value(vkvs: Pin<&mut Vkvs>, ins_value: u32);
-        fn set_lookup(vkvs: Pin<&mut Vkvs>, lookup: u8);
-        fn set_key(vkvs: Pin<&mut Vkvs>, key: u32);
-        fn set_modify(vkvs: Pin<&mut Vkvs>, modify: u8);
-        fn set_del(vkvs: Pin<&mut Vkvs>, del: u8);
-        fn set_mod_value(vkvs: Pin<&mut Vkvs>, mod_value: u32);
-        fn get_valid(vkvs: Pin<&mut Vkvs>) -> u8;
-        fn get_value(vkvs: Pin<&mut Vkvs>) -> u32;
+        fn set_clk(vhashmap: Pin<&mut Vhashmap>, clk: u8);
+        fn set_insert(vhashmap: Pin<&mut Vhashmap>, insert: u8);
+        fn get_busy(vhashmap: Pin<&mut Vhashmap>) -> u8;
+        fn set_ins_key(vhashmap: Pin<&mut Vhashmap>, ins_key: u32);
+        fn set_ins_value(vhashmap: Pin<&mut Vhashmap>, ins_value: u32);
+        fn set_lookup(vhashmap: Pin<&mut Vhashmap>, lookup: u8);
+        fn set_key(vhashmap: Pin<&mut Vhashmap>, key: u32);
+        fn set_modify(vhashmap: Pin<&mut Vhashmap>, modify: u8);
+        fn set_del(vhashmap: Pin<&mut Vhashmap>, del: u8);
+        fn set_mod_value(vhashmap: Pin<&mut Vhashmap>, mod_value: u32);
+        fn get_valid(vhashmap: Pin<&mut Vhashmap>) -> u8;
+        fn get_value(vhashmap: Pin<&mut Vhashmap>) -> u32;
     }
 
     unsafe extern "C++" {
@@ -77,9 +77,9 @@ impl ffi::VerilatedFstC {
     }
 }
 
-impl ffi::Vkvs {
+impl ffi::Vhashmap {
     pub fn new_unique(ctx: Pin<&mut ffi::VerilatedContext>) -> UniquePtr<Self> {
-        ffi::new_vkvs_unique(ctx)
+        ffi::new_vhashmap_unique(ctx)
     }
 
     pub unsafe fn trace(self: Pin<&mut Self>, tracer: Pin<&mut ffi::VerilatedFstC>, levels: i32, options: i32) {
@@ -90,27 +90,27 @@ impl ffi::Vkvs {
 
 const MAX_INSERT: usize = 15000;
 
-fn deterministic_fill_readback(state: &mut usize, vkvs: &mut UniquePtr<ffi::Vkvs>) -> bool{
+fn deterministic_fill_readback(state: &mut usize, vhashmap: &mut UniquePtr<ffi::Vhashmap>) -> bool{
 
     if *state < MAX_INSERT {
 
-        if (ffi::get_busy(vkvs.pin_mut()) & 0x1) == 0 {
-            ffi::set_insert(vkvs.pin_mut(), 1);
-            ffi::set_ins_key(vkvs.pin_mut(), (*state).pow(2) as u32);
-            ffi::set_ins_value(vkvs.pin_mut(), *state as u32);
+        if (ffi::get_busy(vhashmap.pin_mut()) & 0x1) == 0 {
+            ffi::set_insert(vhashmap.pin_mut(), 1);
+            ffi::set_ins_key(vhashmap.pin_mut(), (*state).pow(2) as u32);
+            ffi::set_ins_value(vhashmap.pin_mut(), *state as u32);
 
             *state+=1;
         }
 
     } else {
-        ffi::set_insert(vkvs.pin_mut(), 0);
-        ffi::set_key(vkvs.pin_mut(), (*state - MAX_INSERT).pow(2) as u32);
-        ffi::set_lookup(vkvs.pin_mut(), 1);
+        ffi::set_insert(vhashmap.pin_mut(), 0);
+        ffi::set_key(vhashmap.pin_mut(), (*state - MAX_INSERT).pow(2) as u32);
+        ffi::set_lookup(vhashmap.pin_mut(), 1);
 
         //Check outputs
         if *state >= MAX_INSERT + 2 {
-            assert_eq!(1, ffi::get_valid(vkvs.pin_mut()));
-            assert_eq!((*state-2-MAX_INSERT) as u32, ffi::get_value(vkvs.pin_mut()));
+            assert_eq!(1, ffi::get_valid(vhashmap.pin_mut()));
+            assert_eq!((*state-2-MAX_INSERT) as u32, ffi::get_value(vhashmap.pin_mut()));
         }
 
         *state+=1;
@@ -181,11 +181,11 @@ fn choose_recents(recents: &VecDeque<u32>) -> u32{
     *key
 }
 
-fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::Vkvs>) -> bool {
+fn randomized_operations(state: &mut RandomizedState, vhashmap: &mut UniquePtr<ffi::Vhashmap>) -> bool {
     if !state.filled {
 
         //Fill it up first
-        if (ffi::get_busy(vkvs.pin_mut()) & 0x1) == 0 {
+        if (ffi::get_busy(vhashmap.pin_mut()) & 0x1) == 0 {
 
             let key = loop {
                 let key = rand::random::<u32>();
@@ -195,9 +195,9 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
             };
             let val = rand::random::<u32>();
 
-            ffi::set_insert(vkvs.pin_mut(), 1);
-            ffi::set_ins_key(vkvs.pin_mut(), key);
-            ffi::set_ins_value(vkvs.pin_mut(), val);
+            ffi::set_insert(vhashmap.pin_mut(), 1);
+            ffi::set_ins_key(vhashmap.pin_mut(), key);
+            ffi::set_ins_value(vhashmap.pin_mut(), val);
 
             state.map.insert(key, val);
 
@@ -221,10 +221,10 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
          */
 
         //Pin defaults
-        ffi::set_del(vkvs.pin_mut(), 0);
-        ffi::set_modify(vkvs.pin_mut(), 0);
-        ffi::set_insert(vkvs.pin_mut(), 0);
-        ffi::set_lookup(vkvs.pin_mut(), 0);
+        ffi::set_del(vhashmap.pin_mut(), 0);
+        ffi::set_modify(vhashmap.pin_mut(), 0);
+        ffi::set_insert(vhashmap.pin_mut(), 0);
+        ffi::set_lookup(vhashmap.pin_mut(), 0);
 
         //Adjust the queue of recent operations
         while state.recents.len() >= 100 {
@@ -236,25 +236,25 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
             let lu_value = state.lookups.pop_front().unwrap();
 
             //Check the lookup valid signal is correct
-            assert_eq!(lu_value.is_some(), ffi::get_valid(vkvs.pin_mut()) != 0);
+            assert_eq!(lu_value.is_some(), ffi::get_valid(vhashmap.pin_mut()) != 0);
             state.num_lookups_checked += 1;
 
             if let Some((value, modval)) = lu_value {
 
                 //Check the lookup value is what we expect
-                assert_eq!(value,  ffi::get_value(vkvs.pin_mut()));
+                assert_eq!(value,  ffi::get_value(vhashmap.pin_mut()));
                 state.num_lookups_matched += 1;
 
                 if let Some(val) = modval {
 
-                    ffi::set_modify(vkvs.pin_mut(), 1);
+                    ffi::set_modify(vhashmap.pin_mut(), 1);
 
                     match val {
                         Some(val) => {
-                            ffi::set_mod_value(vkvs.pin_mut(), val);
+                            ffi::set_mod_value(vhashmap.pin_mut(), val);
                         }
                         None => {
-                            ffi::set_del(vkvs.pin_mut(), 1);
+                            ffi::set_del(vhashmap.pin_mut(), 1);
                             state.num_deletes += 1;
                         }
                     }
@@ -296,13 +296,13 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
             }
 
             Operation::LookupPresent(do_mod) => {
-                ffi::set_lookup(vkvs.pin_mut(), 1);
+                ffi::set_lookup(vhashmap.pin_mut(), 1);
 
                 let mut rng = rand::thread_rng();
                 let index: usize = rng.gen_range(0..state.map.len());
                 let mut ent = state.map.get_index_entry(index).unwrap();
 
-                ffi::set_key(vkvs.pin_mut(), *ent.key());
+                ffi::set_key(vhashmap.pin_mut(), *ent.key());
 
                 let key     = *ent.key();
                 let old_val = *ent.get();
@@ -325,12 +325,12 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
             }
 
             Operation::LookupRecent => {
-                ffi::set_lookup(vkvs.pin_mut(), 1);
+                ffi::set_lookup(vhashmap.pin_mut(), 1);
 
                 let key = choose_recents(&state.recents);
                 let val = state.map.get(&key);
 
-                ffi::set_key(vkvs.pin_mut(), key);
+                ffi::set_key(vhashmap.pin_mut(), key);
 
                 let value = match val {
                     Some(val) => {Some((*val, None))},
@@ -343,11 +343,11 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
             }
 
             Operation::LookupAny => {
-                ffi::set_lookup(vkvs.pin_mut(), 1);
+                ffi::set_lookup(vhashmap.pin_mut(), 1);
 
                 let key = rand::random::<u32>();
 
-                ffi::set_key(vkvs.pin_mut(), key);
+                ffi::set_key(vhashmap.pin_mut(), key);
 
                 let value = match state.map.get(&key) {
                     Some(val) => Some((*val, None)),
@@ -363,7 +363,7 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
         //TODO: this is incorrect because things can be inserted before being fully removed by a
         //delete operation
         if state.map.len() < MAX_INSERT {
-            if (ffi::get_busy(vkvs.pin_mut()) & 0x1) == 0 {
+            if (ffi::get_busy(vhashmap.pin_mut()) & 0x1) == 0 {
                 if rand::random() {
 
                     let key = loop {
@@ -382,9 +382,9 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
 
                     let val = rand::random::<u32>();
 
-                    ffi::set_insert(vkvs.pin_mut(), 1);
-                    ffi::set_ins_key(vkvs.pin_mut(), key);
-                    ffi::set_ins_value(vkvs.pin_mut(), val);
+                    ffi::set_insert(vhashmap.pin_mut(), 1);
+                    ffi::set_ins_key(vhashmap.pin_mut(), key);
+                    ffi::set_ins_value(vhashmap.pin_mut(), val);
 
                     state.map.insert(key, val);
                     state.num_inserts += 1;
@@ -401,10 +401,10 @@ fn randomized_operations(state: &mut RandomizedState, vkvs: &mut UniquePtr<ffi::
 
 fn main() {
     let mut ctx  = ffi::VerilatedContext::new_unique();
-    let mut vkvs = ffi::Vkvs::new_unique(ctx.pin_mut());
+    let mut vhashmap = ffi::Vhashmap::new_unique(ctx.pin_mut());
     let mut fst  = ffi::VerilatedFstC::new_unique();
 
-    unsafe {vkvs.pin_mut().trace(fst.pin_mut(), 99, 0)};
+    unsafe {vhashmap.pin_mut().trace(fst.pin_mut(), 99, 0)};
 
     ffi::trace_ever_on(true);
     fst.pin_mut().open("dump.fst").unwrap();
@@ -413,23 +413,23 @@ fn main() {
     let mut state = RandomizedState::new();
 
     //Is this needed
-    ffi::set_clk(vkvs.pin_mut(), 1);
-    vkvs.pin_mut().eval();
+    ffi::set_clk(vhashmap.pin_mut(), 1);
+    vhashmap.pin_mut().eval();
     fst.pin_mut().dump(time);
     time+=1;
 
     loop {
 
-        ffi::set_clk(vkvs.pin_mut(), 0);
-        vkvs.pin_mut().eval();
+        ffi::set_clk(vhashmap.pin_mut(), 0);
+        vhashmap.pin_mut().eval();
         fst.pin_mut().dump(time);
         time+=1;
 
-        ffi::set_clk(vkvs.pin_mut(), 1);
-        vkvs.pin_mut().eval();
+        ffi::set_clk(vhashmap.pin_mut(), 1);
+        vhashmap.pin_mut().eval();
 
-        let done = randomized_operations(&mut state, &mut vkvs);
-        vkvs.pin_mut().eval();
+        let done = randomized_operations(&mut state, &mut vhashmap);
+        vhashmap.pin_mut().eval();
 
         fst.pin_mut().dump(time);
         time+=1;

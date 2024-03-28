@@ -73,14 +73,14 @@ end
 assign key       = ins_key;
 assign mod_value = ins_value;
 
-kvs #(
+hashmap #(
     .NUM_TABLES(4),
     .NUM_ADDR_BITS(12),
     .NUM_KEY_BITS(KEY_BITS),
     .NUM_VAL_BITS(VAL_BITS),
     .NUM_PIPES(2),
     .EN_INS_SEL(1)
-) kvs_inst (
+) hashmap_inst (
     .*
 );
 

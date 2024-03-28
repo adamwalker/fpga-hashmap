@@ -29,5 +29,5 @@ fn main() {
     
     println!("cargo:rustc-link-search={}/lib", dst.display());
     println!("cargo:rustc-link-lib=sim");
-    println!("cargo:rustc-link-lib=Vkvs");
+    println!("cargo:rustc-link-lib=Vhashmap");
 }

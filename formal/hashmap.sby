@@ -20,12 +20,12 @@ smtbmc --nopresat boolector -- --noincr
 [script]
 read -formal ram.sv
 read -formal column.sv
-read -formal kvs.sv
+read -formal hashmap.sv
 read -formal formal.sv 
 prep -top formal
 
 [files]
 ../src/ram.sv
 ../src/column.sv
-../src/kvs.sv
+../src/hashmap.sv
 formal.sv
