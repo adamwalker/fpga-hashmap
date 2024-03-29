@@ -7,6 +7,8 @@ use rand::Rng;
 use std::collections::VecDeque;
 use rand::seq::SliceRandom;
 
+//These FFI bindings are inspired by earlier work by Edward Pierzchalski
+
 #[cxx::bridge]
 #[allow(unused)]
 mod ffi {
