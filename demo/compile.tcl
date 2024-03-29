@@ -50,7 +50,7 @@ synth_design \
 
 write_checkpoint -force "${::output_dir}/post_synth.dcp"
 
-source "exanic_x100.xdc"
+source "constraints.xdc"
 
 #Insert the ILA
 #See the section "Using XDC Commands to Insert Debug Cores" in UG908
@@ -98,5 +98,5 @@ report_timing_summary -file "${::output_dir}/timing.rpt"
 report_utilization -file "${::output_dir}/utilization.rpt"
 
 #Outputs
-write_bitstream "${::output_dir}/exanic_x100.bit" -force
-write_debug_probes "${::output_dir}/exanic_x100.ltx" -force
+write_bitstream "${::output_dir}/image.bit" -force
+write_debug_probes "${::output_dir}/probes.ltx" -force

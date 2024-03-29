@@ -8,7 +8,7 @@ logic sys_clk_gt;
 logic sys_clk_i;
 logic clk;
 
-IBUFDS_GTE4 pcie_refclk_ibuf
+IBUFDS_GTE4 refclk_ibuf_inst
 (
     .O(sys_clk_gt),
     .ODIV2(sys_clk_i),
