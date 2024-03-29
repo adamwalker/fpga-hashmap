@@ -35,7 +35,8 @@ module hashmap #(
     parameter int NUM_KEY_BITS  = 32,
     parameter int NUM_VAL_BITS  = 32,
     parameter int NUM_PIPES     = 2,  //Must be at least 1
-    parameter int EN_INS_SEL    = 1   //See comment below where this parameter is used
+    parameter int EN_INS_SEL    = 1,  //See comment below where this parameter is used
+    parameter     RAM_STYLE     = "ultra"
 )(
     input  logic                    clk,
 
@@ -241,7 +242,8 @@ for (genvar i=0; i<NUM_TABLES; i++) begin: cuckoo_loop
         .NUM_KEY_BITS(NUM_KEY_BITS),
         .NUM_VAL_BITS(NUM_VAL_BITS),
         .NUM_ADDR_BITS(NUM_ADDR_BITS),
-        .NUM_PIPES(NUM_PIPES)
+        .NUM_PIPES(NUM_PIPES),
+        .RAM_STYLE(RAM_STYLE)
     ) column_inst (
         .clk(clk),
         //Formal

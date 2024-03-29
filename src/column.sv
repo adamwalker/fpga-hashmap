@@ -2,7 +2,8 @@ module column #(
     parameter int NUM_KEY_BITS  = 8,
     parameter int NUM_VAL_BITS  = 8,
     parameter int NUM_ADDR_BITS = 4,
-    parameter int NUM_PIPES     = 1
+    parameter int NUM_PIPES     = 1,
+    parameter     RAM_STYLE     = "ultra"
 )(
     input  logic                     clk,
 
@@ -58,10 +59,12 @@ logic [NUM_VAL_BITS-1:0]  read_value;
 
 assign write_addr = addr_pipe[NUM_PIPES-1];
 
+//Optimise: it may be better to combine these into a single ram using byte enables
 ram #(
     .ADDR_WIDTH(NUM_ADDR_BITS),
     .DATA_WIDTH(1),
-    .NUM_PIPES(NUM_PIPES-1)
+    .NUM_PIPES(NUM_PIPES-1),
+    .RAM_STYLE("auto")
 ) ram_en_inst (
     .clk(clk),
     .write_en(write_en_value),
@@ -74,7 +77,8 @@ ram #(
 ram #(
     .ADDR_WIDTH(NUM_ADDR_BITS),
     .DATA_WIDTH(NUM_KEY_BITS),
-    .NUM_PIPES(NUM_PIPES-1)
+    .NUM_PIPES(NUM_PIPES-1),
+    .RAM_STYLE(RAM_STYLE)
 ) ram_key_inst (
     .clk(clk),
     .write_en(write_en_key),
@@ -87,7 +91,8 @@ ram #(
 ram #(
     .ADDR_WIDTH(NUM_ADDR_BITS),
     .DATA_WIDTH(NUM_VAL_BITS),
-    .NUM_PIPES(NUM_PIPES-1)
+    .NUM_PIPES(NUM_PIPES-1),
+    .RAM_STYLE(RAM_STYLE)
 ) ram_value_inst (
     .clk(clk),
     .write_en(write_en_value),

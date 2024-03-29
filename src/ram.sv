@@ -2,7 +2,8 @@
 module ram #(
     parameter int ADDR_WIDTH = 4,
     parameter int DATA_WIDTH = 8,
-    parameter int NUM_PIPES  = 0
+    parameter int NUM_PIPES  = 0,
+    parameter     RAM_STYLE  = "ultra"
 ) (
     input  logic                  clk,
 
@@ -13,7 +14,7 @@ module ram #(
     output logic [DATA_WIDTH-1:0] read_val
 );
 
-logic [DATA_WIDTH-1:0] values[2**ADDR_WIDTH];
+(* RAM_STYLE = RAM_STYLE *) logic [DATA_WIDTH-1:0] values[2**ADDR_WIDTH];
 
 initial
     for (int i=0; i<2**ADDR_WIDTH; i++)
