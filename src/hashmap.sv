@@ -2,7 +2,8 @@
  * An FPGA-based hashtable
  *
  * Its operation is specified below, but for the ultimate unambiguous
- * specification, see formal.sv in the formal directory.
+ * specification, see formal.sv in the formal directory. For waveforms, see
+ * this blog post: https://adamwalker.github.io/Building-Better-Hashtable.
  *
  * Inserts may be initiated any time the busy signal is not asserted. Once
  * inserted, the key/value pair is considered to be in the hashtable on the
