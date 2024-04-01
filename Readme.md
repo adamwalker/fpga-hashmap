@@ -1,4 +1,4 @@
 # FPGA-hashmap
 
-An efficient FPGA-based hashmap. Described [here](http://adamwalker.github.io/Building-Better-Hashtable/).
+An efficient FPGA-based hashmap. Described [here](https://adamwalker.github.io/Building-Better-Hashtable/).
 
